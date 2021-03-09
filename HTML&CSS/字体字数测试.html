@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script>
+		function getTextNumber(){
+			var text = document.getElementById('text').value;
+			// if(text.length>100){
+			// 	alert("字数达到100字");
+			// }else{
+			// 	alert("字数不够");
+			// }
+				var i = text.length;
+				alert(i);
+			
+		}
+	</script>
+</head>
+<body>
+	<textarea id="text" cols='60' rows="20"></textarea>
+	<input type="button" value="测试100字" onclick="getTextNumber()">
+</body>
+</html>

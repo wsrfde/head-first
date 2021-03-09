@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		var ford = {
+			name:'ford',
+			started : false
+		}
+		var taxi = {
+			name:'taxi',
+			started:false
+		}
+		var volove = {
+			name:"volove",
+			started:false
+		}
+		function start(obj){
+			obj.started = true
+			console.log(obj.started)
+		}
+		function stop(obj){
+			obj.started = false
+		}
+		function driverCar(obj) {
+			if(obj.started){
+				console.log(obj.name+'汽车启动成功')
+			}else{
+				console.log(obj.name+'启动失败')
+			}
+		}
+	</script>
+</body>
+</html>
