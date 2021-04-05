@@ -211,9 +211,9 @@
         shipLength: 3, //战舰占据单元格
         shipsSunk: 0, //被击沉数量
         ships: [
-          { location: ['31', '41', '51'], hits: ['', '', ''] },
-          { location: ['14', '24', '34'], hits: ['', '', ''] },
-          { location: ['00', '01', '02'], hits: ['', '', ''] }
+          { location: ['31', '41', '51'], hits: ['', '', ''], isSunk: false },
+          { location: ['14', '24', '34'], hits: ['', '', ''], isSunk: false },
+          { location: ['00', '01', '02'], hits: ['', '', ''], isSunk: false }
         ],
         fire: function (guess) {
           for (var i = 0; i < this.numShips; i++) {
@@ -223,10 +223,15 @@
               view.displayHit(guess)
               view.displayMessage('HIT!')
               ship.hits[index] = 'hit';
-              if (this.isSunk(ship)) {
+              // if (ship.hits.filter(item => item === 'hit').length = 3) {
+              // console.log('-------');
+
+              if (this.isSunk(ship) && ship.isSunk === false) {   //ship.isSunk === false
                 view.displayMessage('You sank my battleship!')
                 this.shipsSunk++;
+                ship.isSunk = true
               }
+              // }
               return true;
             }
           }
@@ -244,17 +249,65 @@
         }
       }
 
-
-      let btnEle = document.getElementById('btn');
-      let inputEle = document.getElementById('guessInput')
-      btnEle.onclick = function (params) {
-        console.log(inputEle.value);
-        let guess = inputEle.value
-        let isGuess = model.fire(guess)
-        console.log('是否击中？' + isGuess);
-        console.log(model.ships);
+      function parseGuess(guess) {
+        var alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        if (guess === null || guess.length !== 2) {
+          alert('输入的字符无效')
+        } else {
+          var firstChar = guess.charAt(0)
+          var row = alphabet.indexOf(firstChar)
+          var column = guess.charAt(1)
+          if (isNaN(row) || isNaN(column)) {
+            alert('当前输入的不是数字')
+          } else if (row < 0 || row >= model.borderSize || column < 0 || column >= model.borderSize) {
+            alert('当前位置不在边界')
+          } else {
+            return row + column
+          }
+        }
+        return null
       }
 
+      var controller = {
+        guesses: 0,
+        processGuess: function (guess) {
+          var location = parseGuess(guess)
+          if (location) {
+            this.guesses++
+            var hit = model.fire(location)
+            if (hit && model.shipsSunk === model.numShips) {
+              alert('全部战舰已经被击沉')
+            }
+          }
+        }
+      }
+
+
+      let btnEle = getEleId('btn');
+      let inputEle = getEleId('guessInput')
+      function handleFireButton() {
+        let guess = inputEle.value.trim()
+        let guessStr = guess.split('').map(item => item.toUpperCase()).join('')
+        controller.processGuess(guessStr)
+        inputEle.value = ''
+
+        if (model.ships.filter(item => item.isSunk === true).length === 3){
+          inputEle.disabled = true
+        }
+      }
+
+      function handleKeyPress(e) {
+        if(e.keyCode === 13){
+          btnEle.click()
+          return false
+        }
+      }
+
+      function init() {
+        btnEle.onclick = handleFireButton
+        inputEle.onkeypress = handleKeyPress
+      }
+      window.onload = init
     </script>
 
 </body>
