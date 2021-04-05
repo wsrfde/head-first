@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <style>
-    #board{
+    #board {
       position: absolute;
       top: 0;
       left: 0;
@@ -16,53 +17,64 @@
 
       margin: auto;
     }
-    #board table{
+
+    #board table {
       background-color: #ccc;
       width: 100%;
       height: 100%;
       border-spacing: 0;
     }
-    .left-title{
+
+    .left-title {
       position: absolute;
       top: 10px;
       left: -20px;
     }
-    .left-title p{
+
+    .left-title p {
       margin-bottom: 50px;
     }
-    .bottom-title{
+
+    .bottom-title {
       width: inherit;
       position: absolute;
       bottom: -20px;
       display: flex;
       justify-content: space-around;
     }
-    #inputBox{
+
+    #inputBox {
       position: absolute;
       bottom: 0;
       right: 0;
       margin-bottom: -60px;
     }
-    #messageArea{
+
+    #messageArea {
       position: absolute;
-      top: -100px;
-      left: -100px;
+      top: 100px;
+      left: 100px;
       background-color: bisque;
       font-size: 20px;
+      z-index: 10;
     }
-    .hit{
-      background-color:red;
+
+    .hit {
+      background-color: red;
     }
-    .hit::after{
+
+    .hit::after {
       display: block;
       content: 'hit';
       width: 0;
       height: 0;
     }
-    .miss{
+
+    .miss {
       background-color: aqua;
     }
-    .miss::after{
+
+    .miss::after {
       display: block;
       content: 'miss';
       width: 0;
@@ -70,7 +82,13 @@
     }
   </style>
 </head>
+
 <body>
+
+  <div id="messageArea">
+    我是消息通知
+  </div>
+
   <div id="board">
     <div class="left-title">
       <p>A</p>
@@ -90,18 +108,16 @@
       <span>5</span>
       <span>6</span>
     </div>
-    <div id="messageArea">
-      我是消息通知
-    </div>
+
     <table border="1">
       <tr>
-        <td id="00"  ></td>
+        <td id="00"></td>
         <td id="01"></td>
-        <td id="02"  ></td>
+        <td id="02"></td>
         <td id="03"></td>
         <td id="04"></td>
         <td id="05"></td>
-        <td id="06" ></td>
+        <td id="06"></td>
       </tr>
       <tr>
         <td id="10"></td>
@@ -158,51 +174,89 @@
         <td id="66"></td>
       </tr>
     </table>
-    <form id='inputBox'>
+
+    <div id='inputBox'>
       <input type="text" name="name" id="guessInput">
       <button id='btn'>按钮</button>
-    </form>
-  </div>
+      </form>
+    </div>
 
-  <script>
-    function getEleId(e) {
-      return document.getElementById(e);
-    }
-
-    var view = {
-      displayMessage:function(msg){
-        var messageArea = getEleId('messageArea');
-        messageArea.innerHTML = msg;
-      },
-      displayHit:function(location){
-        var call = getEleId(location);
-        call.setAttribute('class','hit');
-      },
-      displayMiss:function(location){
-        var call = getEleId(location);
-        call.setAttribute('class','miss');
+    <script>
+      function getEleId(e) {
+        return document.getElementById(e);
       }
-    }
 
-    // view.displayHit('00')
-    // view.displayMiss('02')
-    // view.displayMessage('没有集中')
+      var view = {
+        displayMessage: function (msg) {
+          var messageArea = getEleId('messageArea');
+          messageArea.innerHTML = msg;
+        },
+        displayHit: function (location) {
+          var call = getEleId(location);
+          call.setAttribute('class', 'hit');
+        },
+        displayMiss: function (location) {
+          var call = getEleId(location);
+          call.setAttribute('class', 'miss');
+        }
+      }
 
-    var model = {
-      borderSize:7, //游戏板网格大小
-      numShips:3, //战舰数量
-      shipLength:3, //战舰占据单元格
-      shipSunk:0, //被击沉数量
-      ships:[
-        {location:['31','41','51'],hits:['','','']},
-        {location:['14','24','34'],hits:['','','']},
-        {location:['00','01','02'],hits:['','','']}
-      ]
-    }
+      // view.displayHit('00')
+      // view.displayMiss('03')
+      // view.displayMessage('没有集中')
+
+      var model = {
+        borderSize: 7, //游戏板网格大小
+        numShips: 3, //战舰数量
+        shipLength: 3, //战舰占据单元格
+        shipsSunk: 0, //被击沉数量
+        ships: [
+          { location: ['31', '41', '51'], hits: ['', '', ''] },
+          { location: ['14', '24', '34'], hits: ['', '', ''] },
+          { location: ['00', '01', '02'], hits: ['', '', ''] }
+        ],
+        fire: function (guess) {
+          for (var i = 0; i < this.numShips; i++) {
+            var ship = this.ships[i];
+            var index = ship.location.indexOf(guess);
+            if (index >= 0) {
+              view.displayHit(guess)
+              view.displayMessage('HIT!')
+              ship.hits[index] = 'hit';
+              if (this.isSunk(ship)) {
+                view.displayMessage('You sank my battleship!')
+                this.shipsSunk++;
+              }
+              return true;
+            }
+          }
+          view.displayMiss(guess)
+          view.displayMessage('You missed.')
+          return false
+        },
+        isSunk: function (ship) {
+          for (var i = 0; i < this.shipLength; i++) {
+            if (ship.hits[i] !== 'hit') {
+              return false
+            }
+          }
+          return true
+        }
+      }
 
 
+      let btnEle = document.getElementById('btn');
+      let inputEle = document.getElementById('guessInput')
+      btnEle.onclick = function (params) {
+        console.log(inputEle.value);
+        let guess = inputEle.value
+        let isGuess = model.fire(guess)
+        console.log('是否击中？' + isGuess);
+        console.log(model.ships);
+      }
 
-  </script>
+    </script>
 
 </body>
+
 </html>
